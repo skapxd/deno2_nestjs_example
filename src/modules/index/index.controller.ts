@@ -5,7 +5,7 @@ export class IndexController {
   @Get()
   async index() {
     return {
-      message: `Welcome to the NestJS Tracing Example API!`,
+      message: `Welcome to the Deno 2 - NestJS -- Example API!`,
     };
   }
 }
