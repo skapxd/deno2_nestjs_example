@@ -1,9 +1,9 @@
-import { ConfigModule } from '@nestjs/config';
-import { DataModule } from './modules/data/data.module.ts';
-import { HealthModule } from './modules/health/health.module.ts';
-import { IndexModule } from './modules/index/index.module.ts';
-import { Module } from '@nestjs/common';
-import { RouterModule } from '@nestjs/core';
+import { ConfigModule } from "@nestjs/config";
+import { DataModule } from "./modules/data/data.module.ts";
+import { HealthModule } from "./modules/health/health.module.ts";
+import { IndexModule } from "./modules/index/index.module.ts";
+import { Module } from "@nestjs/common";
+import { RouterModule } from "@nestjs/core";
 
 @Module({
   imports: [
@@ -15,15 +15,15 @@ import { RouterModule } from '@nestjs/core';
     DataModule,
     RouterModule.register([
       {
-        path: '/',
+        path: "/",
         module: IndexModule,
       },
       {
-        path: '/health',
+        path: "/health",
         module: HealthModule,
       },
       {
-        path: '/data',
+        path: "/data",
         module: DataModule,
       },
     ]),

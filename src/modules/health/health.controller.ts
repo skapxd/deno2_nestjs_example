@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 import {
   HealthCheck,
   HealthCheckService,
   MemoryHealthIndicator,
-} from '@nestjs/terminus';
+} from "@nestjs/terminus";
 
 @Controller()
 export class HealthController {
@@ -16,7 +16,7 @@ export class HealthController {
   @HealthCheck()
   check() {
     return this.health.check([
-      async () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
+      async () => this.memory.checkHeap("memory_heap", 150 * 1024 * 1024),
     ]);
   }
 }

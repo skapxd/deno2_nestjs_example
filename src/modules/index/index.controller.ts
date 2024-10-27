@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 
 @Controller()
 export class IndexController {
   @Get()
-  async index() {
+  index() {
     return {
       message: `Welcome to the Deno 2 - NestJS -- Example API!`,
     };

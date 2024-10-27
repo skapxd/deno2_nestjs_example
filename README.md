@@ -9,7 +9,8 @@ Deno 2 - NestJS -- Example
 
 ## Description
 
-This is a simple example project of how to use NestJS within the Deno 2.0 runtime.
+This is a simple example project of how to use NestJS within the Deno 2.0
+runtime.
 
 ## Run the project
 

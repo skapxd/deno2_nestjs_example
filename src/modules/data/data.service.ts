@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class DataService {
-  async getData() {
-    return { data: { message: 'Hello World!' } };
+  getData() {
+    return { data: { message: "Hello World!" } };
   }
 }

@@ -1,5 +1,5 @@
-import { IndexController } from './index.controller.ts';
-import { Module } from '@nestjs/common';
+import { IndexController } from "./index.controller.ts";
+import { Module } from "@nestjs/common";
 
 @Module({
   controllers: [IndexController],
