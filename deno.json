@@ -1,0 +1,26 @@
+{
+  "tasks": {
+    "build": "deno compile --check --allow-read --allow-env --allow-net --output dist/main src/main.ts",
+    "dev": "deno run --watch --allow-read --allow-env --allow-net src/main.ts"
+  },
+  "imports": {
+    "@nestjs/common": "npm:@nestjs/common@^10.4.6",
+    "@nestjs/config": "npm:@nestjs/config@^3.3.0",
+    "@nestjs/core": "npm:@nestjs/core@^10.4.6",
+    "@nestjs/platform-express": "npm:@nestjs/platform-express@^10.4.6",
+    "@nestjs/swagger": "npm:@nestjs/swagger@^7.4.2",
+    "@nestjs/terminus": "npm:@nestjs/terminus@^10.2.3",
+    "@std/assert": "jsr:@std/assert@1",
+    "@typescript-eslint/eslint-plugin": "npm:@typescript-eslint/eslint-plugin@^8.11.0",
+    "@typescript-eslint/parser": "npm:@typescript-eslint/parser@^8.11.0",
+    "eslint": "npm:eslint@^9.13.0",
+    "eslint-config-prettier": "npm:eslint-config-prettier@^9.1.0",
+    "eslint-plugin-prettier": "npm:eslint-plugin-prettier@^5.2.1",
+    "prettier": "npm:prettier@^3.3.3"
+  },
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
