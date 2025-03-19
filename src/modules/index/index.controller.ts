@@ -1,11 +1,12 @@
 import { Controller, Get } from "@nestjs/common";
+import { readFile } from "node:fs/promises";
 
 @Controller()
 export class IndexController {
   @Get()
-  index() {
-    return {
-      message: `Welcome to the Deno 2 - NestJS -- Example API!`,
-    };
+  async index() {
+    const file = await readFile("public/index.html", "utf-8");
+
+    return file;
   }
 }

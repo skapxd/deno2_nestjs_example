@@ -1,6 +1,7 @@
 {
-  "tasks": {
-    "build": "deno compile --check --allow-read --allow-env --allow-net --output dist/main src/main.ts",
+    "tasks": {
+    "build": "deno compile --include ./public/  --check --allow-read --allow-env --allow-net --output dist/main src/main.ts",
+    "build:exe": "deno compile --include ./public/ --check --allow-all --output dist/main --target x86_64-pc-windows-msvc src/main.ts",
     "dev": "deno run --watch --allow-read --allow-env --allow-net src/main.ts"
   },
   "imports": {
