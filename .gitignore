@@ -131,6 +131,3 @@ dist
 
 # JetBrains
 .idea
-
-# VSCode
-.vscode
