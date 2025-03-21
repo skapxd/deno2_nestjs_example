@@ -14,6 +14,7 @@
   },
   "nodeModulesDir": "auto",
   "compilerOptions": {
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   }
 }
