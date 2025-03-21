@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SseController > should recibe event 1`] = `"{"hello":"world","counter":1}"`;
+
+exports[`SseController > should render html 1`] = `
+"
+<button onclick="fn()">this</button>
+<button onclick="fnAll()">all</button>
+
+<ul></ul>
+
+<script type="text/javascript">
+function fn() {
+fetch('sse?counter=1000&id=uuid', {
+method: 'POST',
+});
+}
+
+function fnAll() {
+fetch('sse/all', {
+method: 'POST',
+});
+}
+
+const ul = document.querySelector('ul')
+const eventSource = new EventSource('/sse/uuid');
+eventSource.onmessage = ({ data }) => {
+const message = document.createElement('li');
+message.innerText = 'New message: ' + data;
+ul.insertBefore(message, ul.firstChild);
+}
+</script>
+"
+`;

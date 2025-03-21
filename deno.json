@@ -1,20 +1,35 @@
 {
-    "tasks": {
+  "tasks": {
     "build": "deno compile --include ./public/  --check --allow-read --allow-env --allow-net --output dist/main src/main.ts",
     "build:exe": "deno compile --include ./public/ --check --allow-all --output dist/main --target x86_64-pc-windows-msvc src/main.ts",
-    "dev": "deno run --watch --allow-read --allow-env --allow-net src/main.ts"
+    "dev": "deno run --watch --watch-exclude=listen-types.d.ts --allow-read --allow-env --allow-net --allow-write src/main.ts",
+    "start": "deno run --allow-read --allow-env --allow-net --allow-write src/main.ts"
   },
   "imports": {
+    "#/": "./",
     "@nestjs/common": "npm:@nestjs/common@^10.4.6",
     "@nestjs/config": "npm:@nestjs/config@^3.3.0",
     "@nestjs/core": "npm:@nestjs/core@^10.4.6",
-    "@nestjs/platform-express": "npm:@nestjs/platform-express@^10.4.6",
-    "@nestjs/swagger": "npm:@nestjs/swagger@^7.4.2",
-    "@nestjs/terminus": "npm:@nestjs/terminus@^10.2.3"
+    "@nestjs/event-emitter": "npm:@nestjs/event-emitter@^3.0.1",
+    "@nestjs/platform-express": "npm:@nestjs/platform-express@^11.0.12",
+    "@nestjs/schedule": "npm:@nestjs/schedule@^5.0.1",
+    "@nestjs/swagger": "npm:@nestjs/swagger@^11.0.7",
+    "@nestjs/terminus": "npm:@nestjs/terminus@^10.2.3",
+    "cron": "npm:cron@^4.1.0",
+    "eventemitter2": "npm:eventemitter2@^6.4.9",
+    "express": "npm:express@^4.21.2",
+    "lodash": "npm:lodash@^4.17.21",
+    "rxjs": "npm:rxjs@^7.8.2"
   },
   "nodeModulesDir": "auto",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "noImplicitAny": false
   }
 }
