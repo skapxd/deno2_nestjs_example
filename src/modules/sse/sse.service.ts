@@ -6,7 +6,6 @@ import { EventFlowEmitter } from "#/src/packages/event-flow-emitter/services/eve
 import { fromEvent } from "rxjs";
 import { map } from "rxjs";
 import { CounterDto } from "#/src/modules/sse/sse.dto.ts";
-import { interval } from "rxjs";
 
 @Injectable()
 export class SseService {
@@ -16,7 +15,6 @@ export class SseService {
   constructor(private readonly eventEmitter: EventFlowEmitter) {}
 
   async cron() {
-    this.logger.log("hola");
     this.eventEmitter.emit("btn", { counter: 1, id: null });
   }
 
@@ -63,29 +61,22 @@ export class SseService {
     this.counter -= 1;
   }
 
-  sse(id: string) {
+  sse(id: string, req: any) {
     return fromEvent(this.eventEmitter, "btn").pipe(
       map((_: any) => {
         const [one, two, ...other] = _;
         this.counter += +one.counter;
 
-        // return { data: { counter: this.counter } };
+        const __ = new CounterDto({ counter: this.counter }).toString();
 
-        const __ =
-          // new CounterDto({ counter: this.counter });
-          new MessageEvent<number>("counter", { data: this.counter });
-
-        return JSON.stringify({
-          event: "counter",
-          data: this.counter,
-        });
-
-        if (_.id === id) {
-          return __;
+        if (one.id === id) {
+          // req.write(__)
+          // return __;
         }
 
-        if (_.id === null) {
-          return __;
+        if (one.id === null) {
+          // req.write(__)
+          // return __;
         }
       })
     );

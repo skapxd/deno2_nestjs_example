@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class Counter {
   @ApiProperty({ default: 0 })
@@ -9,27 +9,31 @@ export class Counter {
   }
 }
 
-export class CounterDto extends MessageEvent<Counter> {
-  static event = 'counter';
+export class CounterDto {
+  static event = "counter";
 
   @ApiProperty({ default: CounterDto.event })
-  event: string;
+  type = CounterDto.event;
 
   @ApiProperty({ type: Counter })
-  override data: Counter;
+  data: Counter;
 
   constructor(args: Counter) {
-    super(CounterDto.event, { data: args });
+    this.data = args;
+  }
+
+  toString() {
+    return `event: ${CounterDto.event}\ndata: ${JSON.stringify(this.data)}\n\n`;
   }
 }
 
 export class NotificationsDto extends MessageEvent<string> {
-  static event = 'notification';
+  static event = "notification";
 
   @ApiProperty({ default: NotificationsDto.event })
   event: string;
 
-  @ApiProperty({ default: 'notification value' })
+  @ApiProperty({ default: "notification value" })
   override data: string;
 
   constructor(args: string) {
