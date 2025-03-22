@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Header,
   Param,
   Post,
   Query,
@@ -11,10 +12,12 @@ import {
 import { SseService } from "./sse.service.ts";
 import { CronJob } from "cron";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import { ApiOkResponse } from "#/src/utils/decorators/api-response-sse.decorator.ts";
 import { NotificationsDto } from "#/src/modules/sse/sse.dto.ts";
 import { Events } from "#/src/packages/event-flow-emitter/decorators/events.decorator.ts";
+import * as path from "node:path";
+import process from "node:process";
 
 @Controller()
 export class SseController {
@@ -27,6 +30,17 @@ export class SseController {
   @Get()
   render(@Query("id") id: string) {
     return this.sseService.render(id);
+  }
+  
+  @Get('shared-example')
+  serveSharedWorkerExample(@Res() res: Response) {
+    return res.sendFile(path.resolve(process.cwd(), 'public/sse-example.html'));
+  }
+
+  @Get('worker.js')
+  @Header('Content-Type', 'application/javascript; charset=utf-8')
+  serveSharedWorkerJs(@Res() res: Response) {
+    return res.sendFile(path.resolve(process.cwd(), 'public/sse-worker.js'));
   }
 
   @Post()

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSE With SharedWorker Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    ul {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .status {
+      color: #666;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SSE with SharedWorker</h1>
+    <p>Open multiple tabs with this page to see the SharedWorker in action. All tabs will share a single SSE connection.</p>
+    
+    <div class="buttons">
+      <button onclick="fn()">Update This Tab</button>
+      <button onclick="fnAll()">Update All Tabs</button>
+    </div>
+    
+    <div class="status" id="status">Status: Connecting...</div>
+    
+    <h3>Messages:</h3>
+    <ul id="messages"></ul>
+  </div>
+
+  <script type="text/javascript">
+    // Get unique ID from URL or generate one
+    const urlParams = new URLSearchParams(window.location.search);
+    let uuid = urlParams.get('id');
+    
+    if (!uuid) {
+      // Generate a random ID if not provided
+      uuid = Math.random().toString(36).substring(2, 15);
+      // Update URL without refreshing
+      const newUrl = window.location.pathname + '?id=' + uuid;
+      window.history.pushState({path: newUrl}, '', newUrl);
+    }
+    
+    let sseWorker;
+    let workerPort;
+    const statusEl = document.getElementById('status');
+    const messagesList = document.getElementById('messages');
+    
+    // Initialize the SharedWorker
+    function initSharedWorker() {
+      try {
+        sseWorker = new SharedWorker('/sse/worker.js');
+        workerPort = sseWorker.port;
+        
+        // Start the worker
+        workerPort.start();
+        
+        // Send the UUID to initialize SSE connection
+        workerPort.postMessage({
+          type: 'init',
+          uuid: uuid
+        });
+        
+        // Handle messages from the worker
+        workerPort.onmessage = function(e) {
+          const messageData = e.data;
+          
+          if (messageData.type === 'message') {
+            const message = document.createElement('li');
+            message.innerText = 'New message: ' + messageData.data;
+            messagesList.insertBefore(message, messagesList.firstChild);
+          } else if (messageData.type === 'error') {
+            statusEl.innerText = 'Status: Error - ' + messageData.data;
+            statusEl.style.color = 'red';
+          } else if (messageData.type === 'connected') {
+            statusEl.innerText = 'Status: ' + messageData.data;
+            statusEl.style.color = 'green';
+          }
+        };
+        
+        // Handle page unload to properly close the connection
+        window.addEventListener('beforeunload', () => {
+          if (workerPort) {
+            workerPort.close();
+          }
+        });
+      } catch (e) {
+        console.error('SharedWorker not supported, falling back to direct EventSource', e);
+        statusEl.innerText = 'Status: SharedWorker not supported - using direct connection';
+        statusEl.style.color = 'orange';
+        fallbackToDirectSSE();
+      }
+    }
+    
+    // Fallback to direct EventSource if SharedWorker is not supported
+    function fallbackToDirectSSE() {
+      const eventSource = new EventSource('/sse/' + uuid);
+      
+      eventSource.onmessage = ({ data }) => {
+        const message = document.createElement('li');
+        message.innerText = 'New message (direct): ' + data;
+        messagesList.insertBefore(message, messagesList.firstChild);
+      };
+      
+      eventSource.onerror = () => {
+        statusEl.innerText = 'Status: EventSource connection error';
+        statusEl.style.color = 'red';
+      };
+      
+      eventSource.onopen = () => {
+        statusEl.innerText = 'Status: Connected directly (no SharedWorker)';
+        statusEl.style.color = 'blue';
+      };
+    }
+    
+    function fn() {
+      if (workerPort) {
+        workerPort.postMessage({
+          type: 'fetch',
+          url: 'sse?counter=1000&id=' + uuid,
+          method: 'POST'
+        });
+      } else {
+        fetch('sse?counter=1000&id=' + uuid, {
+          method: 'POST',
+        });
+      }
+    }
+
+    function fnAll() {
+      if (workerPort) {
+        workerPort.postMessage({
+          type: 'fetch',
+          url: 'sse/all',
+          method: 'POST'
+        });
+      } else {
+        fetch('sse/all', {
+          method: 'POST',
+        });
+      }
+    }
+    
+    // Check if SharedWorker is supported
+    if (typeof SharedWorker !== 'undefined') {
+      initSharedWorker();
+    } else {
+      statusEl.innerText = 'Status: SharedWorker not supported in this browser';
+      statusEl.style.color = 'red';
+      fallbackToDirectSSE();
+    }
+  </script>
+</body>
+</html>

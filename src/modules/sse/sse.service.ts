@@ -28,24 +28,96 @@ export class SseService {
       <ul></ul>
 
       <script type="text/javascript">
+      let sseWorker;
+      let workerPort;
+      
+      // Initialize the SharedWorker
+      function initSharedWorker() {
+        try {
+          sseWorker = new SharedWorker('/sse-worker.js');
+          workerPort = sseWorker.port;
+          
+          // Start the worker
+          workerPort.start();
+          
+          // Send the UUID to initialize SSE connection
+          workerPort.postMessage({
+            type: 'init',
+            uuid: '${_uuid}'
+          });
+          
+          // Handle messages from the worker
+          workerPort.onmessage = function(e) {
+            const messageData = e.data;
+            
+            if (messageData.type === 'message') {
+              const message = document.createElement('li');
+              message.innerText = 'New message: ' + messageData.data;
+              ul.insertBefore(message, ul.firstChild);
+            } else if (messageData.type === 'error') {
+              console.error(messageData.data);
+            } else if (messageData.type === 'connected') {
+              console.log(messageData.data);
+            }
+          };
+          
+          // Handle page unload to properly close the connection
+          window.addEventListener('beforeunload', () => {
+            if (workerPort) {
+              workerPort.close();
+            }
+          });
+        } catch (e) {
+          console.error('SharedWorker not supported, falling back to direct EventSource', e);
+          fallbackToDirectSSE();
+        }
+      }
+      
+      // Fallback to direct EventSource if SharedWorker is not supported
+      function fallbackToDirectSSE() {
+        const eventSource = new EventSource('/sse/${_uuid}');
+        eventSource.onmessage = ({ data }) => {
+          const message = document.createElement('li');
+          message.innerText = 'New message (direct): ' + data;
+          ul.insertBefore(message, ul.firstChild);
+        }
+      }
+      
       function fn() {
-        fetch('sse?counter=1000&id=${_uuid}', {
-        method: 'POST',
-        });
+        if (workerPort) {
+          workerPort.postMessage({
+            type: 'fetch',
+            url: 'sse?counter=1000&id=${_uuid}',
+            method: 'POST'
+          });
+        } else {
+          fetch('sse?counter=1000&id=${_uuid}', {
+            method: 'POST',
+          });
+        }
       }
 
       function fnAll() {
-        fetch('sse/all', {
-          method: 'POST',
-        });
+        if (workerPort) {
+          workerPort.postMessage({
+            type: 'fetch',
+            url: 'sse/all',
+            method: 'POST'
+          });
+        } else {
+          fetch('sse/all', {
+            method: 'POST',
+          });
+        }
       }
 
-      const ul = document.querySelector('ul')
-      const eventSource = new EventSource('/sse/${_uuid}');
-      eventSource.onmessage = ({ data }) => {
-        const message = document.createElement('li');
-        message.innerText = 'New message: ' + data;
-        ul.insertBefore(message, ul.firstChild);
+      const ul = document.querySelector('ul');
+      
+      // Check if SharedWorker is supported
+      if (typeof SharedWorker !== 'undefined') {
+        initSharedWorker();
+      } else {
+        fallbackToDirectSSE();
       }
       </script>
     `.replace(/  /g, "");
@@ -67,17 +139,14 @@ export class SseService {
         const [one, two, ...other] = _;
         this.counter += +one.counter;
 
-        const __ = new CounterDto({ counter: this.counter }).toString();
+        const message = new CounterDto({ counter: this.counter }).toString();
 
-        if (one.id === id) {
-          // req.write(__)
-          // return __;
+        // Send to specific client or broadcast to all
+        if (one.id === id || one.id === null) {
+          return { data: JSON.stringify({ counter: this.counter }) };
         }
-
-        if (one.id === null) {
-          // req.write(__)
-          // return __;
-        }
+        
+        return undefined; // Don't send to other clients
       })
     );
   }
