@@ -16,7 +16,7 @@ export class CounterDto extends MessageEvent<Counter> {
   event: string;
 
   @ApiProperty({ type: Counter })
-  data: Counter;
+  override data: Counter;
 
   constructor(args: Counter) {
     super(CounterDto.event, { data: args });
@@ -30,7 +30,7 @@ export class NotificationsDto extends MessageEvent<string> {
   event: string;
 
   @ApiProperty({ default: 'notification value' })
-  data: string;
+  override data: string;
 
   constructor(args: string) {
     super(NotificationsDto.event, { data: args });

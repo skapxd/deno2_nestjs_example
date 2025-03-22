@@ -24,7 +24,7 @@ import { SseModule } from "#/src/modules/sse/sse.module.ts";
     HealthModule,
     DataModule,
     EventsModule,
-    // SseModule,
+    SseModule,
     RouterModule.register([
       {
         path: "/",
@@ -42,10 +42,10 @@ import { SseModule } from "#/src/modules/sse/sse.module.ts";
         path: "/events",
         module: EventsModule,
       },
-      // {
-      //   path: "/sse",
-      //   module: SseModule,
-      // },
+      {
+        path: "/sse",
+        module: SseModule,
+      },
     ]),
   ],
 })

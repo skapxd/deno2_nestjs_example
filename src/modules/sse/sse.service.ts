@@ -1,23 +1,23 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 
-import { Injectable, Logger,  } from '@nestjs/common';
-import { fromEvent, map } from 'rxjs';
+import { Injectable, Logger } from "@nestjs/common";
 
-import { EventFlowEmitter } from '#/src/packages/event-flow-emitter/services/event-flow-emitter.ts';
-
-import { CounterDto } from './sse.dto.ts';
+import { EventFlowEmitter } from "#/src/packages/event-flow-emitter/services/event-flow-emitter.ts";
+import { fromEvent } from "rxjs";
+import { map } from "rxjs";
+import { CounterDto } from "#/src/modules/sse/sse.dto.ts";
+import { interval } from "rxjs";
 
 @Injectable()
 export class SseService {
   private readonly logger = new Logger(SseService.name);
   private counter = 0;
 
-  constructor(
-    private readonly eventEmitter: EventFlowEmitter,
-  ) {}
+  constructor(private readonly eventEmitter: EventFlowEmitter) {}
 
   async cron() {
-    this.eventEmitter.emit('btn', { counter: 1, id: null });
+    this.logger.log("hola");
+    this.eventEmitter.emit("btn", { counter: 1, id: null });
   }
 
   render(uuid?: string) {
@@ -50,11 +50,11 @@ export class SseService {
         ul.insertBefore(message, ul.firstChild);
       }
       </script>
-    `.replace(/  /g, '');
+    `.replace(/  /g, "");
   }
 
   btn(counter: number, id: string) {
-    this.eventEmitter.emit('btn', { counter, id });
+    this.eventEmitter.emit("btn", { counter, id });
     this.logger.log(`${id} - ${counter}`);
     return { counter };
   }
@@ -64,18 +64,30 @@ export class SseService {
   }
 
   sse(id: string) {
-    return fromEvent(this.eventEmitter, 'btn').pipe(
+    return fromEvent(this.eventEmitter, "btn").pipe(
       map((_: any) => {
-        this.counter += _.counter;
+        const [one, two, ...other] = _;
+        this.counter += +one.counter;
+
+        // return { data: { counter: this.counter } };
+
+        const __ =
+          // new CounterDto({ counter: this.counter });
+          new MessageEvent<number>("counter", { data: this.counter });
+
+        return JSON.stringify({
+          event: "counter",
+          data: this.counter,
+        });
 
         if (_.id === id) {
-          return new CounterDto({ counter: this.counter });
+          return __;
         }
 
         if (_.id === null) {
-          return new CounterDto({ counter: this.counter });
+          return __;
         }
-      }),
+      })
     );
   }
 }
